@@ -25,31 +25,32 @@ def atualizar_busca():
     contagem_por_diretorio_e_data = contar_arquivos_por_data(diretorios)
     atualizar_lista(contagem_por_diretorio_e_data)
 
-def aplicar_filtro_nome():
-    filtro = entrada_filtro_nome.get().strip().lower()
-    if filtro:
-        filtrar_resultados("Nome", filtro)
-
-def aplicar_filtro_data():
-    filtro = entrada_filtro_data.get().strip()
-    if filtro:
-        filtrar_resultados("Data", filtro)
-
-def filtrar_resultados(coluna, filtro):
+def criar_lista_valores(coluna):
+    valores_unicos = set()
     for row_id in tree.get_children():
-        valor = tree.item(row_id)["values"][colunas.index(coluna)].lower()
-        if filtro in valor:
-            tree.selection_add(row_id)
+        valor = tree.item(row_id)["values"][colunas.index(coluna)]
+        valores_unicos.add(valor)
+    return list(valores_unicos)
+
+def aplicar_filtro(coluna):
+    filtro = dropdown_filtro[coluna].get()
+    for row_id in tree.get_children():
+        valor = tree.item(row_id)["values"][colunas.index(coluna)]
+        if valor != filtro:
+            tree.detach(row_id)
         else:
-            tree.selection_remove(row_id)
+            tree.reattach(row_id, '', '')
+            tree.selection_add(row_id)
+
+def atualizar_filtros():
+    for coluna in colunas:
+        dropdown_filtro[coluna]["values"] = criar_lista_valores(coluna)
+        dropdown_filtro[coluna].set('')
 
 def atualizar_lista(contagem_por_diretorio_e_data):
     tree.delete(*tree.get_children())  # Limpar a tabela antes de atualizar
     for diretorio, contagem_por_data in contagem_por_diretorio_e_data.items():
-        # Ordenar as datas antes de inseri-las na árvore
-        datas_ordenadas = sorted(contagem_por_data.keys(), key=lambda x: datetime.datetime.strptime(x, '%d/%m/%Y'))
-        for data in datas_ordenadas:
-            contagem = contagem_por_data[data]
+        for data, contagem in contagem_por_data.items():
             tree.insert("", tk.END, values=(diretorio, contagem, data))
 
 # Defina seus diretórios aqui
@@ -69,29 +70,25 @@ tree.pack(fill="both", expand=True)
 # Definir as colunas
 colunas = ["Nome", "Quantidade", "Data"]
 
-# Entrada de texto para filtrar por nome
-frame_filtro_nome = tk.Frame(janela)
-frame_filtro_nome.pack(pady=5)
-label_filtro_nome = tk.Label(frame_filtro_nome, text="Filtrar por Nome:")
-label_filtro_nome.grid(row=0, column=0)
-entrada_filtro_nome = tk.Entry(frame_filtro_nome)
-entrada_filtro_nome.grid(row=0, column=1)
-botao_filtro_nome = tk.Button(frame_filtro_nome, text="Aplicar Filtro", command=aplicar_filtro_nome)
-botao_filtro_nome.grid(row=0, column=2)
-
-# Entrada de texto para filtrar por data
-frame_filtro_data = tk.Frame(janela)
-frame_filtro_data.pack(pady=5)
-label_filtro_data = tk.Label(frame_filtro_data, text="Filtrar por Data:")
-label_filtro_data.grid(row=0, column=0)
-entrada_filtro_data = tk.Entry(frame_filtro_data)
-entrada_filtro_data.grid(row=0, column=1)
-botao_filtro_data = tk.Button(frame_filtro_data, text="Aplicar Filtro", command=aplicar_filtro_data)
-botao_filtro_data.grid(row=0, column=2)
+# Criar dropdowns para filtragem
+dropdown_filtro = {}
+for coluna in colunas:
+    frame_filtro = tk.Frame(janela)
+    frame_filtro.pack(pady=5)
+    label_filtro = tk.Label(frame_filtro, text=f"Filtrar por {coluna}:")
+    label_filtro.grid(row=0, column=0)
+    valores_filtro = criar_lista_valores(coluna)
+    dropdown_filtro[coluna] = ttk.Combobox(frame_filtro, values=valores_filtro)
+    dropdown_filtro[coluna].grid(row=0, column=1)
+    dropdown_filtro[coluna].bind("<<ComboboxSelected>>", lambda event, coluna=coluna: aplicar_filtro(coluna))
 
 # Botão para atualizar a busca
 botao_atualizar = tk.Button(janela, text="Atualizar", command=atualizar_busca)
 botao_atualizar.pack()
+
+# Botão para limpar filtros
+botao_limpar_filtros = tk.Button(janela, text="Limpar Filtros", command=atualizar_filtros)
+botao_limpar_filtros.pack()
 
 # Atualizar a busca inicial
 atualizar_busca()
