@@ -1,6 +1,7 @@
 import os
 import datetime
 import tkinter as tk
+from tkinter import ttk
 
 def contar_arquivos_por_data(diretorios):
     contagem_por_diretorio_e_data = {}
@@ -22,13 +23,25 @@ def contar_arquivos_por_data(diretorios):
 
 def atualizar_busca():
     contagem_por_diretorio_e_data = contar_arquivos_por_data(diretorios)
-    atualizar_lista(contagem_por_diretorio_e_data)
+    atualizar_tabela(contagem_por_diretorio_e_data)
 
-def atualizar_lista(contagem_por_diretorio_e_data):
-    lista_resultados.delete(0, tk.END)
-    for diretorio, contagem_por_data in contagem_por_diretorio_e_data.items():
-        for data, contagem in contagem_por_data.items():
-            lista_resultados.insert(tk.END, f"{diretorio:<10} {contagem:<11} {data}")
+def aplicar_filtro_nome():
+    filtro = entrada_filtro_nome.get().strip().lower()
+    if filtro:
+        filtrar_resultados("Nome", filtro)
+
+def aplicar_filtro_data():
+    filtro = entrada_filtro_data.get().strip()
+    if filtro:
+        filtrar_resultados("Data", filtro)
+
+def filtrar_resultados(coluna, filtro):
+    for row_id in tree.get_children():
+        valor = tree.item(row_id)["values"][colunas.index(coluna)].lower()
+        if filtro in valor:
+            tree.selection_add(row_id)
+        else:
+            tree.selection_remove(row_id)
 
 # Defina seus diretórios aqui
 diretorios = ["/caminho/do/seu/diretorio1", "/caminho/do/seu/diretorio2"]
@@ -37,9 +50,32 @@ diretorios = ["/caminho/do/seu/diretorio1", "/caminho/do/seu/diretorio2"]
 janela = tk.Tk()
 janela.title("Contagem de Arquivos por Data")
 
-# Criar lista para exibir os resultados
-lista_resultados = tk.Listbox(janela, width=50, height=20)
-lista_resultados.pack(pady=10)
+# Criar uma tabela para exibir os resultados
+tree = ttk.Treeview(janela, columns=("Nome", "Quantidade", "Data"), show="headings")
+tree.heading("Nome", text="Nome")
+tree.heading("Quantidade", text="Quantidade")
+tree.heading("Data", text="Data")
+tree.pack(fill="both", expand=True)
+
+# Entrada de texto para filtrar por nome
+frame_filtro_nome = tk.Frame(janela)
+frame_filtro_nome.pack(pady=5)
+label_filtro_nome = tk.Label(frame_filtro_nome, text="Filtrar por Nome:")
+label_filtro_nome.grid(row=0, column=0)
+entrada_filtro_nome = tk.Entry(frame_filtro_nome)
+entrada_filtro_nome.grid(row=0, column=1)
+botao_filtro_nome = tk.Button(frame_filtro_nome, text="Aplicar Filtro", command=aplicar_filtro_nome)
+botao_filtro_nome.grid(row=0, column=2)
+
+# Entrada de texto para filtrar por data
+frame_filtro_data = tk.Frame(janela)
+frame_filtro_data.pack(pady=5)
+label_filtro_data = tk.Label(frame_filtro_data, text="Filtrar por Data:")
+label_filtro_data.grid(row=0, column=0)
+entrada_filtro_data = tk.Entry(frame_filtro_data)
+entrada_filtro_data.grid(row=0, column=1)
+botao_filtro_data = tk.Button(frame_filtro_data, text="Aplicar Filtro", command=aplicar_filtro_data)
+botao_filtro_data.grid(row=0, column=2)
 
 # Botão para atualizar a busca
 botao_atualizar = tk.Button(janela, text="Atualizar", command=atualizar_busca)
