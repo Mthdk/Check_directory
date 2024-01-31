@@ -15,7 +15,8 @@ def contar_arquivos_por_data(diretorios):
             data_modificacao_str = data_modificacao.strftime("%d/%m/%Y")
             contagem_por_data[data_modificacao_str] = contagem_por_data.get(data_modificacao_str, 0) + 1
 
-        contagem_por_diretorio_e_data[diretorio] = contagem_por_data
+        nome_diretorio = os.path.basename(diretorio)  # Obter apenas o nome do diretório
+        contagem_por_diretorio_e_data[nome_diretorio] = contagem_por_data
 
     return contagem_por_diretorio_e_data
 
