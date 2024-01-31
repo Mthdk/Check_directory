@@ -46,7 +46,10 @@ def filtrar_resultados(coluna, filtro):
 def atualizar_lista(contagem_por_diretorio_e_data):
     tree.delete(*tree.get_children())  # Limpar a tabela antes de atualizar
     for diretorio, contagem_por_data in contagem_por_diretorio_e_data.items():
-        for data, contagem in contagem_por_data.items():
+        # Ordenar as datas antes de inseri-las na árvore
+        datas_ordenadas = sorted(contagem_por_data.keys(), key=lambda x: datetime.datetime.strptime(x, '%d/%m/%Y'))
+        for data in datas_ordenadas:
+            contagem = contagem_por_data[data]
             tree.insert("", tk.END, values=(diretorio, contagem, data))
 
 # Defina seus diretórios aqui
@@ -62,6 +65,9 @@ tree.heading("Nome", text="Nome")
 tree.heading("Quantidade", text="Quantidade")
 tree.heading("Data", text="Data")
 tree.pack(fill="both", expand=True)
+
+# Definir as colunas
+colunas = ["Nome", "Quantidade", "Data"]
 
 # Entrada de texto para filtrar por nome
 frame_filtro_nome = tk.Frame(janela)
