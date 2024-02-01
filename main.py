@@ -31,6 +31,12 @@ def atualizar_lista(contagem_por_diretorio_e_data):
         for data, contagem in contagem_por_data.items():
             tree.insert("", tk.END, values=(diretorio, contagem, data))
 
+def atualizar_busca():
+    diretorios = ler_diretorios_do_arquivo("diretorios.txt")
+    contagem_por_diretorio_e_data = contar_arquivos_por_data(diretorios)
+    atualizar_lista(contagem_por_diretorio_e_data)
+    atualizar_filtros()
+
 def criar_lista_valores(coluna):
     valores_unicos = set()
     for row_id in tree.get_children():
@@ -83,10 +89,6 @@ for coluna in colunas:
 # Botão para atualizar a busca
 botao_atualizar = tk.Button(janela, text="Atualizar", command=atualizar_busca)
 botao_atualizar.pack()
-
-# Botão para limpar filtros
-botao_limpar_filtros = tk.Button(janela, text="Limpar Filtros", command=atualizar_filtros)
-botao_limpar_filtros.pack()
 
 # Atualizar a busca inicial
 atualizar_busca()
