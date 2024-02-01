@@ -48,12 +48,6 @@ def atualizar_filtros():
         dropdown_filtro[coluna]["values"] = valores_filtro
         dropdown_filtro[coluna].set('')
 
-def atualizar_lista(contagem_por_diretorio_e_data):
-    tree.delete(*tree.get_children())  # Limpar a tabela antes de atualizar
-    for diretorio, contagem_por_data in contagem_por_diretorio_e_data.items():
-        for data, contagem in contagem_por_data.items():
-            tree.insert("", tk.END, values=(diretorio, contagem, data))
-
 # Defina seus diretórios aqui
 diretorios = ["/caminho/do/seu/diretorio1", "/caminho/do/seu/diretorio2"]
 
