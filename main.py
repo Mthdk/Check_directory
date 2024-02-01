@@ -3,6 +3,10 @@ import datetime
 import tkinter as tk
 from tkinter import ttk
 
+def ler_diretorios_do_arquivo(caminho_arquivo):
+    with open(caminho_arquivo, "r") as arquivo:
+        return [linha.strip() for linha in arquivo.readlines()]
+
 def contar_arquivos_por_data(diretorios):
     contagem_por_diretorio_e_data = {}
 
@@ -22,6 +26,7 @@ def contar_arquivos_por_data(diretorios):
     return contagem_por_diretorio_e_data
 
 def atualizar_busca():
+    diretorios = ler_diretorios_do_arquivo("diretorios.txt")
     contagem_por_diretorio_e_data = contar_arquivos_por_data(diretorios)
     atualizar_lista(contagem_por_diretorio_e_data)
 
@@ -47,9 +52,6 @@ def atualizar_filtros():
         valores_filtro = criar_lista_valores(coluna)
         dropdown_filtro[coluna]["values"] = valores_filtro
         dropdown_filtro[coluna].set('')
-
-# Defina seus diretórios aqui
-diretorios = ["/caminho/do/seu/diretorio1", "/caminho/do/seu/diretorio2"]
 
 # Criar janela principal
 janela = tk.Tk()
@@ -88,5 +90,3 @@ botao_limpar_filtros.pack()
 # Atualizar a busca inicial
 atualizar_busca()
 
-# Iniciar o loop da interface gráfica
-janela.mainloop()
